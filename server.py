@@ -1,5 +1,6 @@
 import configparser
-from flask import Flask, request, render_template, redirect
+from utils import *
+from flask import Flask, jsonify, request, render_template, redirect
 from werkzeug.urls import iri_to_uri
 from requests.models import PreparedRequest
 
@@ -31,8 +32,17 @@ def tinkLink():
 @app.route('/' + config['Local']['CallBackDir'])
 def result():
     tinkCode = request.args.get('code')
-    credentialsId = request.args.get('credentialsId')
-    return tinkCode + '\n' +credentialsId
+    #credentialsId = request.args.get('credentialsId')
+    access_token = get_access_token_by_code(tinkCode)
+    transaction_list = get_transaction_by_token(access_token)
+    infected_list = ['Coop']
+    #Futrue work: get the infected_list from DB
+    user_age = get_user_profile(access_token)
+    count = find_in_transaction(transaction_list, infected_list)
+    result = assess_result(count, user_age)
+    level_dic = {2:"high", 1:"middle", 0:"low"}
+
+    return "You risk of infection is " + level_dic[result]
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000)
