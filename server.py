@@ -1,7 +1,6 @@
 import configparser
 import utils
-from flask import Flask
-from flask import render_template, redirect
+from flask import Flask, request, render_template, redirect
 from werkzeug.urls import iri_to_uri
 
 app = Flask(__name__)
@@ -21,7 +20,9 @@ def tinkLink():
 
 @app.route('/' + config['Local']['CallBackDir'])
 def result():
-    return "Result!"
+    tinkCode = request.args.get('code')
+    credentialsId = request.args.get('credentialsId')
+    return tinkCode + '\n' +credentialsId
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000)
